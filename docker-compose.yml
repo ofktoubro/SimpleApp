@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  app:
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    container_name: my-app
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ASPNETCORE_URLS=http://+:80
+        - DOTNET_USE_POLLING_FILE_WATCHER=1
+        - ASPNETCORE_ConnectionStrings__DefaultConnection=Server=db,1433;Database=data;User Id=sa;Password=Password88
+    volumes:
+        - ./app:/app
+    ports:
+        - 8080:80
+    working_dir: /app
+    command: bash -c "dotnet restore && dotnet watch run --no-launch-profile"
+    depends_on:
+      - db
+  db:
+    container_name: SqlServer
+    image: mcr.microsoft.com/mssql/server
+    environment:
+        SA_PASSWORD: "Password88"
+        ACCEPT_EULA: "Y"
+    volumes:
+        - ./db:/var/opt/mssql/data
+    ports:
+        - 1433:1433
